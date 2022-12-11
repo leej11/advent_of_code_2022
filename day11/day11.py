@@ -19,17 +19,6 @@ def read_input(input_file):
 
     return monkeys
 
-def parse_monkey_info(monkey_info):
-
-    id = monkey_info[0][-2]
-    items = [int(item) for item in re.findall(r'(\d+)', monkey_info[1])]
-    operation = re.findall(r'(?:=\s)(.+)', monkey_info[2])[0]
-    operation_func = lambda old: eval(operation)
-    test_val = int(re.findall(r'(\d+)', monkey_info[3])[0])
-    test_func = lambda x: x % test_val == 0
-
-
-
 
 class Monkey:
     def __init__(self, monkey_info):
@@ -71,6 +60,11 @@ class Monkey:
         print(f"Worry level: {item} -> {math.floor(item / 3)}")
         return math.floor(item / 3)
 
+    def run_lcm_modulo(self,item,lcm):
+        self.items[self.items.index(item)] = item % lcm
+        print(f"Worry level: {item} -> {item % lcm}")
+        return item % lcm
+
     def run_test(self,item):
         test_func = lambda x: x % self.test_val == 0
 
@@ -90,7 +84,13 @@ monkey_dict = {}
 for i, monkey_info in enumerate(input):
     monkey_dict[i] = Monkey(monkey_info)
 
-for round in range(1,21):
+for round in range(1,10001):
+
+    divisors = []
+    for i, monkey in monkey_dict.items():
+         divisors.append(monkey.test_val)
+    lowest_common_multiple = math.lcm(*divisors)
+
     for i, monkey in monkey_dict.items():
         print("="*50)
         print(f"{monkey}")
@@ -102,7 +102,8 @@ for round in range(1,21):
             print(f"Processing item: {item}", end="\n\n")
 
             item = monkey.run_operation(item)
-            item = monkey.run_div_3_floor(item)
+            #item = monkey.run_div_3_floor(item)
+            item = monkey.run_lcm_modulo(item,lowest_common_multiple)
             monkey.run_test(monkey.items[monkey.items.index(item)])
 
     print("=" * 50)
